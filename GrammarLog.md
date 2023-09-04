@@ -246,6 +246,30 @@ git log
 
 curl是一个非常实用的、用来与服务器之间传输数据的工具；支持的协议包括 (DICT, FILE, FTP, FTPS, GOPHER, HTTP, HTTPS, IMAP, IMAPS, LDAP, LDAPS, POP3, POP3S, RTMP, RTSP, SCP, SFTP, SMTP, SMTPS, TELNET and TFTP)，curl设计为无用户交互下完成工作；curl提供了一大堆非常有用的功能，包括代理访问、用户认证、ftp上传下载、HTTP POST、SSL连接、cookie支持、断点续传...。
 
+
+
+
+
+
+
+# docker
+
+## get_run_command
+
+~~~
+1. docker pull cucker/get_command_4_run_container
+
+2. echo "alias get_run_command='docker run --rm -v /var/run/docker.sock:/var/run/docker.sock cucker/get_command_4_run_container'" >> ~/.bashrc
+
+3.  . ~/.bashrc
+~~~
+
+
+
+
+
+#  
+
 # 生成word
 
 ## 1-引用依赖
