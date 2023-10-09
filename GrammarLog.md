@@ -188,7 +188,11 @@ git restore * 丢弃所有工作区修改
 git restore --staged file  回退暂存区文件 不会更改文件内容
 git rebase --continue   rebase后继续操作
 git rebase --abort 退出rebase 操作
-
+git remote        # 列出所有远程主机
+git remote update origin --prune   # 更新远程主机origin 整理分支
+git branch -r      # 列出远程分支
+git branch -vv     # 查看本地分支和远程分支对应关系
+git checkout -b gpf origin/gpf    # 新建本地分支gpf与远程gpf分支相关联
 
 ~~~
 
