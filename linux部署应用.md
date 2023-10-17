@@ -1,3 +1,49 @@
+## centos7配置yum镜像源
+
+1、验证网络是否可以连接阿里云镜像
+
+~~~
+ping mirrors.aliyun.com
+~~~
+
+2、删除原yum源
+
+~~~
+rm -rf /etc/yum.repos.d/*
+~~~
+
+3、下载阿里云Centos-7.repo文件
+
+~~~
+# wget命令下载: wget [options] [url]
+wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+~~~
+
+或者
+
+~~~
+# curl命令下载: curl [options] [url]
+curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+~~~
+
+4、清除及生成缓存
+
+~~~
+# 清除yum缓存
+yum clean all
+# 缓存阿里云镜像
+yum makecache
+~~~
+
+5、安装lrzsz进行验证
+
+~~~
+# yum安装lrzsz
+yum install lrzsz
+~~~
+
+
+
 ## docker安装
 
 1. 设置源
