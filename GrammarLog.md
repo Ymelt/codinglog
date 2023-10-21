@@ -236,7 +236,7 @@ git log
 
 ​	对于Telnet的认识，不同的人持有不同的观点，可以把Telnet当成一种通信协议，但是对于入侵者而言，Telnet只是一种远程登录的工具。一旦入侵者与远程主机建立了Telnet连接，入侵者便可以使用目标主机上的软、硬件资源，而入侵者的本地机只相当于一个只有键盘和显示器的终端而已。
 
-    
+​    
 
 ## 为什么需要Telnet？
 
@@ -270,9 +270,108 @@ curl是一个非常实用的、用来与服务器之间传输数据的工具；�
 
 
 
+# Tomcat
+
+## 僵尸进程
+
+之前就有误操过，在tomcat还在运行的时候执行了start.sh文件，导致出现了两个java进程，而其中几个就是僵尸进程。
+
+解决方案：
+
+~~~
+1. 执行ps -ef|grep java,找到疑似重复的两个java进程。
+
+2. 根据启动时间判断哪个进程比较早启动,PID为32032的那个进程启动时间比较早,更可能是僵尸进程。
+
+3. 发送kill -0 32032测试,如果进程不终止,确认它是僵尸进程。
+
+4. 执行shutdown.sh完全停止当前运行的Tomcat。
+
+5. 使用kill -9 32032强制杀死PID为32032的僵尸java进程。
+
+6. 删除Tomcat的临时文件目录下内容,包括/usr/local/tomcat/temp、/usr/local/tomcat/work等目录。
+
+7. 重新执行startup.sh启动Tomcat。
+
+8. ps -ef|grep java确认只存在一个Java进程。
+
+9. 请求接口测试Tomcat运行情况。
+~~~
+
+第三步，如果测试的命令成功终止了该进程，那么
+~~~
+1. 执行ps命令再次确认当前是否还存在两个相似的Java进程。
+
+2. 如果测试时终止了一个进程,现在只剩一个进程,可以直接对当前运行的进程进行重新启动流程。
+
+3. 如果再次ps发现还是两进程,则需要重新判定哪一个是需要kill的僵尸进程。
+
+4. 可以根据运行目录、启动时间、端口占用重新判断。
+
+5. 对最可能的僵尸进程再次执行kill -9终止。
+
+6. 后续步骤继续进行停止、清理、重启Tomcat。
+~~~
 
 
-#  
+
+
+
+## 日志文件的清理
+
+将catalina.out文件清理，因为目前没有重要的日志信息，可以直接执行
+
+~~~
+echo -n "">/usr/local/tomcat/logs/catalina.out
+~~~
+
+释放空间后发现问题
+
+~~~
+#清理catalina.out后
+#使用命令“du -sh /usr/local/tomcat/*”列出logs占用6.1G
+#但是我再使用命令“du -sh /usr/local/tomcat/logs/*”列出的所有文件占用大小占用不过是1G
+~~~
+
+提出可以尝试几种方法找到真正占用空间的位置
+
+~~~
+#使用 du -ah /usr/local/tomcat/logs - 列出logs目录下包括隐藏文件的实际大小
+#使用 du -sh /usr/local/tomcat/logs/* /usr/local/tomcat/logs/.* - 同时统计隐藏文件
+#使用 find /usr/local/tomcat/logs -type f -print0 | xargs -0 du -ch - 找出占用空间最大的具体文件
+#检查是否存在类似归档日志目录导致 - /usr/local/tomcat/logs/archive
+#检查logs目录下是否有软链接,链接到其他位置的大文件
+#用 ncdu /usr/local/tomcat/logs 交互式查看日志目录大小
+~~~
+
+使用第二个命令后(当然是使用第一个命令后没有展示出我需要的隐藏文件的信息)
+
+~~~
+使用“du -sh /usr/local/tomcat/logs/* /usr/local/tomcat/logs/.*”后其中有一项“5.2G /usr/local/tomcat/logs/.”
+~~~
+
+说明隐藏目录下存在较大的文件
+
+~~~
+针对这个隐藏目录,可以采取以下几步来定位具体的大文件:
+1. 进入该目录:   “cd /usr/local/tomcat/logs/.”
+2. 列出目录详情:ls -alh
+这会显示出所有包含隐藏文件在内的文件列表。
+3. 根据文件大小排序:ls -alhS
+这可以直观看到占用最大的文件
+4. 如果文件较多，使用  “du -ah . | sort -rh | head -10”
+
+~~~
+
+使用“ls -alh”命令后显示出“.catalina.out.swo”占用了5.2G
+
+~~~
+这很可能是一个Tomcat的运行日志文件,文件名中的.swo表示这个文件是Vim编辑器的备份文件。（大概率是我尝试使用xftp直接打开文件编辑，导致产生了这个备份文件）
+~~~
+
+
+
+
 
 # 生成word
 
