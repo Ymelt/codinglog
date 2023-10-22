@@ -718,4 +718,4 @@ private static  void setCellImage(XWPFTableCell cell,String urls)  {
 
 ~~~
 
-注意：可以插入多张，但是插入多张之后word读取时有无法读取的错误提示，但是还是能看到导出的文件，需要解决
+注意：可以插入多张，但是插入多张之后office word读取时有无法读取的错误提示，但是还是能看到导出的文件，需要解决
